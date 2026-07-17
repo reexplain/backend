@@ -1,0 +1,38 @@
+[project]
+name = "reexplain-api"
+version = "0.1.0"
+description = "FastAPI services for ReExplain"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.116.0,<1.0.0",
+    "pypdf>=5.7.0,<7.0.0",
+    "python-multipart>=0.0.20,<1.0.0",
+    "uvicorn[standard]>=0.35.0,<1.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.0,<1.0.0",
+    "pytest>=8.4.0,<10.0.0",
+    "ruff>=0.12.0,<1.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/reexplain_api"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
