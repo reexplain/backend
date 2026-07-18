@@ -14,10 +14,16 @@ MAX_PDF_PAGE_COUNT = 25
 READ_CHUNK_SIZE = 1024 * 1024
 
 
+class ExtractedPage(BaseModel):
+    page_number: int
+    text: str
+
+
 class ExtractedPdf(BaseModel):
     filename: str
     page_count: int
     text: str
+    pages: list[ExtractedPage]
 
 
 async def read_bounded_pdf(file: UploadFile) -> bytes:
@@ -60,7 +66,10 @@ async def extract_pdf(file: Annotated[UploadFile, File()]) -> ExtractedPdf:
                 status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail=f"PDF files must contain {MAX_PDF_PAGE_COUNT} pages or fewer.",
             )
-        page_text = [page.extract_text() or "" for page in reader.pages]
+        pages = [
+            ExtractedPage(page_number=index, text=(page.extract_text() or "").strip())
+            for index, page in enumerate(reader.pages, start=1)
+        ]
     except (PdfReadError, ValueError) as error:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -70,5 +79,6 @@ async def extract_pdf(file: Annotated[UploadFile, File()]) -> ExtractedPdf:
     return ExtractedPdf(
         filename=file.filename or "document.pdf",
         page_count=len(reader.pages),
-        text="\n\n".join(page_text).strip(),
+        text="\n\n".join(page.text for page in pages).strip(),
+        pages=pages,
     )

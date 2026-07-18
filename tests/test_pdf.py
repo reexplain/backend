@@ -1,12 +1,21 @@
 from io import BytesIO
 
+import pytest
 from fastapi.testclient import TestClient
 from pypdf import PdfWriter
 
 from reexplain_api.api.routes.pdf import MAX_PDF_PAGE_COUNT
 from reexplain_api.main import app
+from reexplain_api.security import require_service_key
 
-client = TestClient(app)
+client = TestClient(app, base_url="http://localhost")
+
+
+@pytest.fixture(autouse=True)
+def bypass_service_authentication():
+    app.dependency_overrides[require_service_key] = lambda: None
+    yield
+    app.dependency_overrides.pop(require_service_key, None)
 
 
 def make_pdf(page_count: int = 1) -> bytes:
@@ -29,6 +38,7 @@ def test_extract_pdf() -> None:
         "filename": "notes.pdf",
         "page_count": 1,
         "text": "",
+        "pages": [{"page_number": 1, "text": ""}],
     }
 
 
@@ -64,6 +74,7 @@ def test_accepts_pdf_at_page_limit() -> None:
 
     assert response.status_code == 200
     assert response.json()["page_count"] == MAX_PDF_PAGE_COUNT
+    assert response.json()["pages"][-1]["page_number"] == MAX_PDF_PAGE_COUNT
 
 
 def test_rejects_pdf_over_page_limit() -> None:
