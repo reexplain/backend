@@ -77,3 +77,37 @@ tests/         API and security tests
 uv run ruff check src tests
 uv run pytest
 ```
+
+## Docker
+
+Build and run the same container used by Cloud Run:
+
+```bash
+docker build -t reexplain-api .
+docker run --rm -p 8080:8080 \
+	--env-file .env.local \
+	-e REEXPLAIN_ALLOWED_HOSTS=localhost,127.0.0.1 \
+	reexplain-api
+curl http://localhost:8080/health
+```
+
+The image runs as a non-root user, installs only locked production dependencies, and listens on Cloud Run's `PORT` environment variable. Local environment files are excluded from the build context.
+
+## Google Cloud Run
+
+From the `backend` directory, deploy directly from the Dockerfile:
+
+```bash
+gcloud run deploy reexplain-api \
+	--source . \
+	--region us-central1 \
+	--allow-unauthenticated \
+	--set-env-vars 'REEXPLAIN_ALLOWED_HOSTS=*.run.app' \
+	--set-env-vars 'REEXPLAIN_ALLOWED_ORIGINS=https://YOUR_WEB_APP_DOMAIN' \
+	--set-env-vars 'REEXPLAIN_QUESTION_MODEL=gpt-5.4,REEXPLAIN_EMBEDDING_MODEL=text-embedding-3-small' \
+	--set-secrets 'OPENAI_API_KEY=OPENAI_API_KEY:latest,REEXPLAIN_API_SERVICE_KEY=REEXPLAIN_API_SERVICE_KEY:latest'
+```
+
+Create the two Secret Manager secrets before deploying, and grant the Cloud Run runtime service account `Secret Manager Secret Accessor`. Keep `--allow-unauthenticated` because application requests are authenticated with `X-ReExplain-Service-Key`; the health endpoint remains available for platform probes.
+
+After deployment, set the web app's `REEXPLAIN_API_URL` to the Cloud Run service URL and keep its `REEXPLAIN_API_SERVICE_KEY` synchronized with the Secret Manager value.
