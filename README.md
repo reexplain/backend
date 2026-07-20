@@ -1,6 +1,6 @@
-# ReExplain API
+# ReExplain - Backend
 
-ReExplain is a teach-back learning app that helps learners find out what they actually understand. Rather than generating another summary or quiz, it asks the learner to explain ideas from their own material and uses AI to reflect what was understood, surface gaps, and guide the next part of the explanation.
+ReExplain is an AI-powered teach-back learning app built around a simple question: what do you actually understand after studying something? Instead of summarising a PDF or presenting a fixed quiz, it asks the learner to explain concepts in their own words. The AI takes the role of a curious learner, reflecting what it understood, pointing out what remains unclear, and asking the learner to take the explanation further.
 
 This private FastAPI service powers that learning loop. It handles PDF extraction, learning-material checks, voice transcription, structured GPT-5.6 learning turns, and embeddings. The browser never calls it directly; the Next.js app authenticates the learner first and sends requests with a shared service key.
 
