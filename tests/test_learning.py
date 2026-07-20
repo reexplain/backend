@@ -8,9 +8,14 @@ from reexplain_api.models import (
     EvidenceAssessment,
     LearningTurnRequest,
     LearningTurnResult,
+    TranscriptionResponse,
 )
 from reexplain_api.security import require_service_key
-from reexplain_api.services.openai import ensure_learner_evidence, get_openai_service
+from reexplain_api.services.openai import (
+    LEARNING_INSTRUCTIONS,
+    ensure_learner_evidence,
+    get_openai_service,
+)
 
 
 class FakeOpenAIService:
@@ -39,8 +44,32 @@ class FakeOpenAIService:
             embeddings=[[0.0] * 1536 for _ in inputs],
         )
 
+    async def transcribe_audio(self, filename, content, content_type):
+        return TranscriptionResponse(text="Paging maps virtual to physical addresses.")
+
 
 client = TestClient(app, base_url="http://localhost")
+
+
+def test_learning_prompt_uses_a_learner_led_teach_back_contract() -> None:
+    assert "curious AI learner being taught by the user" in LEARNING_INSTRUCTIONS
+    assert "thoughtful peer" in LEARNING_INSTRUCTIONS
+    assert "natural, warm, and composed" in LEARNING_INSTRUCTIONS
+    assert "clear 1-2 sentence reply of at most 55 words" in LEARNING_INSTRUCTIONS
+    assert "ask exactly one concise, curious question" in LEARNING_INSTRUCTIONS
+    assert "checks the depth of the user's understanding" in LEARNING_INSTRUCTIONS
+    assert "not a hidden exam" in LEARNING_INSTRUCTIONS
+    assert "formal assessment phrases" in LEARNING_INSTRUCTIONS
+    assert "one brief source-grounded corrective hint" in LEARNING_INSTRUCTIONS
+    assert "learner's strengths and next weakness" in LEARNING_INSTRUCTIONS
+    assert "choose one specific foundational concept" in LEARNING_INSTRUCTIONS
+    assert "ask one concrete question" in LEARNING_INSTRUCTIONS
+    assert "Do not ask the user to choose a topic" in LEARNING_INSTRUCTIONS
+    assert "whole subject" in LEARNING_INSTRUCTIONS
+    assert "no more than 5 primary, generic concepts" in LEARNING_INSTRUCTIONS
+    assert "Concept names must describe general subject matter only" in LEARNING_INSTRUCTIONS
+    assert "document-structure labels" in LEARNING_INSTRUCTIONS
+    assert "Most replies should not be questions" not in LEARNING_INSTRUCTIONS
 
 
 def test_learning_request_accepts_25_document_chunks() -> None:
@@ -145,6 +174,11 @@ def test_learning_routes_return_typed_model_results() -> None:
             "/api/v1/learning/embeddings",
             json={"inputs": ["A cause precedes its effect."]},
         )
+        transcription_response = client.post(
+            "/api/v1/learning/transcribe",
+            files={"file": ("teaching.webm", b"recorded speech", "audio/webm")},
+            data={"duration_seconds": "42"},
+        )
     finally:
         app.dependency_overrides.pop(require_service_key, None)
         app.dependency_overrides.pop(get_openai_service, None)
@@ -153,3 +187,24 @@ def test_learning_routes_return_typed_model_results() -> None:
     assert turn_response.json()["interaction_type"] == "why"
     assert embedding_response.status_code == 200
     assert len(embedding_response.json()["embeddings"][0]) == 1536
+    assert transcription_response.status_code == 200
+    assert transcription_response.json() == {
+        "text": "Paging maps virtual to physical addresses.",
+        "truncated": False,
+    }
+
+
+def test_transcription_rejects_recordings_over_three_minutes() -> None:
+    app.dependency_overrides[require_service_key] = lambda: None
+    app.dependency_overrides[get_openai_service] = FakeOpenAIService
+    try:
+        response = client.post(
+            "/api/v1/learning/transcribe",
+            files={"file": ("teaching.webm", b"recorded speech", "audio/webm")},
+            data={"duration_seconds": "181"},
+        )
+    finally:
+        app.dependency_overrides.pop(require_service_key, None)
+        app.dependency_overrides.pop(get_openai_service, None)
+
+    assert response.status_code == 422

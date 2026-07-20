@@ -15,8 +15,9 @@ class Settings(BaseSettings):
     reexplain_allowed_hosts: str = "localhost,127.0.0.1,testserver"
     reexplain_api_service_key: SecretStr | None = None
     openai_api_key: SecretStr | None = None
-    reexplain_question_model: str = "gpt-5.4"
+    reexplain_question_model: str = "gpt-5.6-luna"
     reexplain_embedding_model: str = "text-embedding-3-small"
+    reexplain_transcription_model: str = "gpt-4o-mini-transcribe"
 
     @property
     def allowed_origins(self) -> list[str]:

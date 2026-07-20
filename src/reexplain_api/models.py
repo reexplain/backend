@@ -3,6 +3,12 @@ from typing import Literal
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 
+class LearningMaterialAssessment(BaseModel):
+    is_learning_material: bool
+    confidence: int = Field(ge=0, le=100)
+    reason: str = Field(min_length=1, max_length=300)
+
+
 class LearningHistoryTurn(BaseModel):
     role: Literal["learner", "assistant"]
     content: str = Field(min_length=1, max_length=10_000)
@@ -11,7 +17,7 @@ class LearningHistoryTurn(BaseModel):
 class LearningTurnRequest(BaseModel):
     document_chunks: list[str] = Field(min_length=1, max_length=100)
     history: list[LearningHistoryTurn] = Field(default_factory=list, max_length=40)
-    learner_response: str | None = Field(default=None, max_length=10_000)
+    learner_response: str | None = Field(default=None, max_length=4_000)
     safety_identifier: str = Field(min_length=16, max_length=64, pattern=r"^[a-f0-9]+$")
 
     @field_validator("document_chunks")
@@ -51,8 +57,17 @@ class OpenQuestionAssessment(BaseModel):
 
 
 class LearningTurnResult(BaseModel):
-    content: str = Field(min_length=1, max_length=4_000)
-    interaction_type: Literal["explain", "probe", "why", "connect", "apply", "challenge"]
+    content: str = Field(
+        min_length=1,
+        max_length=4_000,
+        description=(
+            "A natural 1-2 sentence reply from an attentive AI learner that briefly reflects "
+            "what it understood and asks one concrete, curious question."
+        ),
+    )
+    interaction_type: Literal["explain", "probe", "why", "connect", "apply", "challenge"] = (
+        Field(description="The diagnostic mode used internally; not a quiz instruction.")
+    )
     active_concept: str = Field(min_length=1, max_length=120)
     concepts: list[ConceptAssessment] = Field(min_length=1, max_length=12)
     evidence: list[EvidenceAssessment] = Field(default_factory=list, max_length=20)
@@ -78,3 +93,8 @@ class EmbeddingRequest(BaseModel):
 class EmbeddingResponse(BaseModel):
     model: str
     embeddings: list[list[float]]
+
+
+class TranscriptionResponse(BaseModel):
+    text: str = Field(min_length=1, max_length=4_000)
+    truncated: bool = False
