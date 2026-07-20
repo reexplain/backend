@@ -98,7 +98,7 @@ Configure `.env.local`:
 | `REEXPLAIN_EMBEDDING_MODEL` | Embedding model; defaults to `text-embedding-3-small`. |
 | `REEXPLAIN_TRANSCRIPTION_MODEL` | Transcription model; defaults to `gpt-4o-mini-transcribe`. |
 
-Set the same service-key value in `web/.env.local` as `REEXPLAIN_API_SERVICE_KEY`.
+Set the same service-key value in `.env.local` in [web](https://github.com/reexplain/web) as `REEXPLAIN_API_SERVICE_KEY`.
 
 ## Run locally
 
@@ -194,3 +194,5 @@ gcloud run deploy reexplain-api \
 Create the two Secret Manager secrets first and grant the Cloud Run runtime service account `Secret Manager Secret Accessor`. `--allow-unauthenticated` is used for platform health probes; application routes still require `X-ReExplain-Service-Key`.
 
 After deployment, set `REEXPLAIN_API_URL` in the web app to the Cloud Run URL and keep `REEXPLAIN_API_SERVICE_KEY` synchronized with Secret Manager.
+
+Built for [OpenAI Build Week hackathon](https://openai.devpost.com/)
