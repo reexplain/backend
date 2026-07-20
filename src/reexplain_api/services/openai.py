@@ -71,10 +71,14 @@ return at least one evidence item. Its concept_name must exactly match one of th
 Use supports for a correct claim, contradicts for an incorrect claim, and uncertain when the
 response is incomplete or ambiguous. Concept names must describe general subject matter only. Never
 use document-structure labels such as chapter, section, exercise, example, figure, page, question
-number, or problem number. Keep each concept distinct, avoid near-duplicates, and write a crisp
-description of no more than 18 words that can stand alone as a practice prompt. Keep the summary
-factual and suitable for resuming the session later. Make the learner's strengths and next weakness
-clear in the evidence and summary so they know what to keep doing and what to improve.
+number, or problem number.
+Concept names and descriptions must be self-contained subject-matter statements.
+Never mention or imply a document, PDF, source, passage, excerpt, learning material,
+author, text, file, session, or conversation in them. Keep each concept distinct, avoid
+near-duplicates, and write a crisp description of no more than 18 words that can stand alone as a
+practice prompt. Keep the summary factual and suitable for resuming the session later. Make the
+learner's strengths and next weakness clear in the evidence and summary so they know what to keep
+doing and what to improve.
 """.strip()
 
 

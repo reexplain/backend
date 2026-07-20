@@ -67,8 +67,14 @@ def test_learning_prompt_uses_a_learner_led_teach_back_contract() -> None:
     assert "Do not ask the user to choose a topic" in LEARNING_INSTRUCTIONS
     assert "whole subject" in LEARNING_INSTRUCTIONS
     assert "no more than 5 primary, generic concepts" in LEARNING_INSTRUCTIONS
+    assert "Prefer 4-5 broad, connected ideas" in LEARNING_INSTRUCTIONS
     assert "Concept names must describe general subject matter only" in LEARNING_INSTRUCTIONS
     assert "document-structure labels" in LEARNING_INSTRUCTIONS
+    assert "self-contained subject-matter statements" in LEARNING_INSTRUCTIONS
+    assert (
+        "Never mention or imply a document, PDF, source, passage, excerpt"
+        in LEARNING_INSTRUCTIONS
+    )
     assert "Most replies should not be questions" not in LEARNING_INSTRUCTIONS
 
 
