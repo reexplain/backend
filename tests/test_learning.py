@@ -54,15 +54,25 @@ client = TestClient(app, base_url="http://localhost")
 
 
 def test_learning_prompt_uses_a_learner_led_teach_back_contract() -> None:
+    normalized_instructions = " ".join(LEARNING_INSTRUCTIONS.split())
+
     assert "curious AI learner being taught by the user" in LEARNING_INSTRUCTIONS
     assert "thoughtful peer" in LEARNING_INSTRUCTIONS
     assert "natural, warm, and composed" in LEARNING_INSTRUCTIONS
     assert "clear 1-2 sentence reply of at most 55 words" in LEARNING_INSTRUCTIONS
-    assert "ask exactly one concise, curious question" in LEARNING_INSTRUCTIONS
-    assert "checks the depth of the user's understanding" in LEARNING_INSTRUCTIONS
+    assert "learner's first-person perspective" in normalized_instructions
+    assert "motivated by genuine curiosity, confusion" in normalized_instructions
+    assert "learner nudging their teacher" in normalized_instructions
     assert "not a hidden exam" in LEARNING_INSTRUCTIONS
     assert "formal assessment phrases" in LEARNING_INSTRUCTIONS
-    assert "one brief source-grounded corrective hint" in LEARNING_INSTRUCTIONS
+    assert "Surface one brief source-grounded tension" in normalized_instructions
+    assert "ask the user to reconcile it" in normalized_instructions
+    assert "counterexample, condition, or earlier claim" in normalized_instructions
+    assert "do not announce or grade the mistake" in normalized_instructions
+    assert (
+        "Never disguise a correction as certainty from a teacher"
+        in normalized_instructions
+    )
     assert "learner's strengths and next weakness" in LEARNING_INSTRUCTIONS
     assert "choose one specific foundational concept" in LEARNING_INSTRUCTIONS
     assert "ask one concrete question" in LEARNING_INSTRUCTIONS
