@@ -1,4 +1,6 @@
+import pytest
 from fastapi.testclient import TestClient
+from pydantic import ValidationError
 
 from reexplain_api.config import Settings, get_settings
 from reexplain_api.main import app
@@ -70,6 +72,9 @@ def test_learning_prompt_uses_a_learner_led_teach_back_contract() -> None:
     assert "Prefer 4-5 broad, connected ideas" in LEARNING_INSTRUCTIONS
     assert "Concept names must describe general subject matter only" in LEARNING_INSTRUCTIONS
     assert "document-structure labels" in LEARNING_INSTRUCTIONS
+    assert "short, crisp noun phrase of 2-6 words" in LEARNING_INSTRUCTIONS
+    assert "no more than 48 characters" in LEARNING_INSTRUCTIONS
+    assert "Do not use verbs, full sentences" in LEARNING_INSTRUCTIONS
     assert "self-contained subject-matter statements" in LEARNING_INSTRUCTIONS
     assert (
         "Never mention or imply a document, PDF, source, passage, excerpt"
@@ -85,6 +90,16 @@ def test_learning_request_accepts_25_document_chunks() -> None:
     )
 
     assert len(request.document_chunks) == 25
+
+
+def test_concept_names_are_bounded_for_concise_session_and_graph_labels() -> None:
+    with pytest.raises(ValidationError):
+        ConceptAssessment(
+            name="x" * 49,
+            description="A concise description.",
+            state="developing",
+            score=50,
+        )
 
 
 def test_learner_response_always_produces_evidence() -> None:

@@ -72,6 +72,10 @@ Use supports for a correct claim, contradicts for an incorrect claim, and uncert
 response is incomplete or ambiguous. Concept names must describe general subject matter only. Never
 use document-structure labels such as chapter, section, exercise, example, figure, page, question
 number, or problem number.
+Write each concept name as a short, crisp noun phrase of 2-6 words and no more than 48 characters.
+Use a compact label such as "Physics modeling" or "Heat transfer" instead of a sentence or
+clause such as "Physics uses observations to predict behavior." Do not use verbs, full sentences,
+or explanatory detail in a concept name; put the explanation in its description instead.
 Concept names and descriptions must be self-contained subject-matter statements.
 Never mention or imply a document, PDF, source, passage, excerpt, learning material,
 author, text, file, session, or conversation in them. Keep each concept distinct, avoid

@@ -2,6 +2,8 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
+MAX_CONCEPT_NAME_LENGTH = 48
+
 
 class LearningMaterialAssessment(BaseModel):
     is_learning_material: bool
@@ -36,14 +38,14 @@ class LearningTurnRequest(BaseModel):
 
 
 class ConceptAssessment(BaseModel):
-    name: str = Field(min_length=1, max_length=120)
+    name: str = Field(min_length=1, max_length=MAX_CONCEPT_NAME_LENGTH)
     description: str = Field(min_length=1, max_length=500)
     state: Literal["unexplored", "developing", "demonstrated"]
     score: int = Field(ge=0, le=100)
 
 
 class EvidenceAssessment(BaseModel):
-    concept_name: str = Field(min_length=1, max_length=120)
+    concept_name: str = Field(min_length=1, max_length=MAX_CONCEPT_NAME_LENGTH)
     kind: Literal["supports", "contradicts", "uncertain"]
     claim: str = Field(min_length=1, max_length=500)
     rationale: str = Field(min_length=1, max_length=500)
@@ -51,7 +53,7 @@ class EvidenceAssessment(BaseModel):
 
 
 class OpenQuestionAssessment(BaseModel):
-    concept_name: str | None = Field(default=None, max_length=120)
+    concept_name: str | None = Field(default=None, max_length=MAX_CONCEPT_NAME_LENGTH)
     text: str = Field(min_length=1, max_length=500)
     priority: int = Field(ge=0, le=100)
 
@@ -68,7 +70,7 @@ class LearningTurnResult(BaseModel):
     interaction_type: Literal["explain", "probe", "why", "connect", "apply", "challenge"] = (
         Field(description="The diagnostic mode used internally; not a quiz instruction.")
     )
-    active_concept: str = Field(min_length=1, max_length=120)
+    active_concept: str = Field(min_length=1, max_length=MAX_CONCEPT_NAME_LENGTH)
     concepts: list[ConceptAssessment] = Field(min_length=1, max_length=12)
     evidence: list[EvidenceAssessment] = Field(default_factory=list, max_length=20)
     open_questions: list[OpenQuestionAssessment] = Field(default_factory=list, max_length=10)
